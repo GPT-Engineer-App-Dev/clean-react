@@ -1,9 +1,11 @@
 import { Box, Container, Flex, Text, VStack, Link, Button } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useSupabaseAuth } from "../integrations/supabase/auth.jsx";
+import { useEvents } from "../integrations/supabase/index.js";
 
 const Index = () => {
   const { session, logout } = useSupabaseAuth();
+  const { data: events, error, isLoading } = useEvents();
 
   return (
     <Box>
@@ -46,8 +48,25 @@ const Index = () => {
         alignItems="center"
       >
         <VStack spacing={4}>
-          <Text fontSize="2xl">Your Blank Canvas</Text>
-          <Text>Chat with the agent to start making edits.</Text>
+          {session ? (
+            <>
+              <Text fontSize="2xl">Events</Text>
+              {isLoading && <Text>Loading...</Text>}
+              {error && <Text color="red.500">{error.message}</Text>}
+              {events && events.map(event => (
+                <Box key={event.id} p={4} borderWidth="1px" borderRadius="lg" w="100%">
+                  <Text fontSize="xl">{event.name}</Text>
+                  <Text>{event.date}</Text>
+                  <Text>{event.description}</Text>
+                </Box>
+              ))}
+            </>
+          ) : (
+            <>
+              <Text fontSize="2xl">Welcome to MyApp</Text>
+              <Text>Please log in to see the events.</Text>
+            </>
+          )}
         </VStack>
       </Container>
     </Box>
